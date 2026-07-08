@@ -4,6 +4,7 @@ import { needProjectId } from "../projectUtils";
 import * as ailogic from "../gcp/ailogic";
 import * as clc from "colorette";
 import { logger } from "../logger";
+import { getErrStatus } from "../error";
 import * as Table from "cli-table3";
 
 import { Options } from "../options";
@@ -13,8 +14,26 @@ export const command = new Command("ailogic:triggers:list")
   .before(requirePermissions, ["firebasevertexai.triggers.get"])
   .action(async (options: Options) => {
     const projectId = needProjectId(options);
-    await ailogic.ensureAILogicApiEnabled(projectId, options);
-    const triggers = await ailogic.listTriggers(projectId, "global");
+    if (!(await ailogic.isAILogicApiEnabled(projectId))) {
+      logger.info(clc.bold("Firebase AI Logic is not enabled on this project."));
+      return [];
+    }
+
+    let triggers;
+    try {
+      triggers = await ailogic.listTriggers(projectId, "global");
+    } catch (err: unknown) {
+      // The trigger registration read surface is not yet exposed in the public
+      // v1beta API. Until it ships, the collection endpoint returns not-found /
+      // not-implemented; degrade gracefully rather than surfacing a raw error.
+      // Any other status (e.g. permissions) is a real error and is re-thrown.
+      const status = getErrStatus(err);
+      if (status === 404 || status === 501) {
+        logger.info(clc.yellow("Listing AI Logic triggers is not yet available for this project."));
+        return [];
+      }
+      throw err;
+    }
 
     if (triggers.length === 0) {
       logger.info(clc.bold("No registered triggers found."));
