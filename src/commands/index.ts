@@ -242,6 +242,9 @@ export function load(client: CLIClient): CLIClient {
   client.ailogic.templates.lock = loadCommand("ailogic-templates-lock");
   client.ailogic.templates.unlock = loadCommand("ailogic-templates-unlock");
 
+  client.ailogic.triggers = {};
+  client.ailogic.triggers.list = loadCommand("ailogic-triggers-list");
+
   client.login = loadCommand("login");
   client.login.add = loadCommand("login-add");
   client.login.ci = loadCommand("login-ci");
