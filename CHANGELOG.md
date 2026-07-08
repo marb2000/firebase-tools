@@ -1,2 +1,3 @@
 - Added `firebase ailogic:providers:*` CLI commands to enable, disable, and list Gemini API providers.
+- Added `firebase ailogic:config:*` CLI commands to read and modify AI Logic configuration settings.
 - Updated Pub/Sub emulator to version 0.8.34
