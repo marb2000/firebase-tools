@@ -258,6 +258,11 @@ export interface ListTemplatesResponse {
 
 export type TemplateOutputOnlyFields = "name" | "etag";
 
+/** Extracts the template id (the last path segment) from a template resource name. */
+export function templateIdFromName(name: string): string {
+  return name.split("/").pop() ?? "";
+}
+
 export type ProviderType = "gemini-developer-api" | "gemini-agent-platform-api";
 
 export const PROVIDER_TYPES: ProviderType[] = ["gemini-developer-api", "gemini-agent-platform-api"];
