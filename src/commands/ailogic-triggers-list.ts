@@ -3,6 +3,7 @@ import { requirePermissions } from "../requirePermissions";
 import { needProjectId } from "../projectUtils";
 import * as ailogic from "../gcp/ailogic";
 import * as clc from "colorette";
+import * as utils from "../utils";
 import { logger } from "../logger";
 import { getErrStatus } from "../error";
 import * as Table from "cli-table3";
@@ -19,9 +20,9 @@ export const command = new Command("ailogic:triggers:list")
       return [];
     }
 
-    let triggers;
+    let triggers: ailogic.Trigger[];
     try {
-      triggers = await ailogic.listTriggers(projectId, "global");
+      triggers = await ailogic.listTriggers(projectId, ailogic.GLOBAL_LOCATION);
     } catch (err: unknown) {
       // The trigger registration read surface is not yet exposed in the public
       // v1beta API. Until it ships, the collection endpoint returns not-found /
@@ -29,7 +30,7 @@ export const command = new Command("ailogic:triggers:list")
       // Any other status (e.g. permissions) is a real error and is re-thrown.
       const status = getErrStatus(err);
       if (status === 404 || status === 501) {
-        logger.info(clc.yellow("Listing AI Logic triggers is not yet available for this project."));
+        utils.logWarning("Listing AI Logic triggers is not yet available for this project.");
         return [];
       }
       throw err;

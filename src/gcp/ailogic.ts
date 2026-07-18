@@ -172,8 +172,8 @@ export async function listTriggers(
       queryParams.filter = filter;
     }
 
-    // We set a page size to something reasonable or let server decide,
-    // but the user wants to slurp everything.
+    // Let the server pick the page size; we page through until there is no
+    // nextPageToken so the caller gets every trigger.
     const res = await client.get<ListTriggersResponse>(`${parent}/triggers`, { queryParams });
     if (res.body.triggers) {
       triggers.push(...res.body.triggers);
